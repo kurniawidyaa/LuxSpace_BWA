@@ -17,13 +17,10 @@ class IsAdmin
      */
     public function handle(Request $request, Closure $next)
     {
-        return $next($request);
-
         if (Auth::user() && Auth::user()->roles == 'ADMIN') {
             return $next($request);
         }
         return redirect('/');
-
         // setelah membuat middleware daftarkan dalam kernel.php
     }
 }
