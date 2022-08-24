@@ -3,6 +3,7 @@
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\FrontendController;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\ProductGalleryController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -31,5 +32,9 @@ Route::middleware(['auth:sanctum', 'verified'])
         Route::middleware(['admin'])->group(function () {
             // Product
             Route::resource('product', ProductController::class);
+            // shallow() -> sebagai slug dalam route resource
+            Route::resource('product.gallery', ProductGalleryController::class)->shallow()->only([
+                'index', 'create', 'store', 'destroy'
+            ]);
         });
     });
