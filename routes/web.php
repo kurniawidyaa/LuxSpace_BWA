@@ -5,6 +5,7 @@ use App\Http\Controllers\FrontendController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ProductGalleryController;
 use App\Http\Controllers\TransactionController;
+use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -20,9 +21,13 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', [FrontendController::class, 'index'])->name('index');
 Route::get('/details/{slug}', [FrontendController::class, 'details'])->name('details');
-Route::get('/cart', [FrontendController::class, 'cart'])->name('cart');
-Route::get('/checkout/success', [FrontendController::class, 'success'])->name('checkout-success');
 
+// frontend 
+Route::middleware(['auth:sanctum', 'verified'])->group(function () {
+    Route::get('/cart', [FrontendController::class, 'cart'])->name('cart');
+    Route::post('/cart/{id}', [FrontendController::class, 'cartAdd'])->name('cart-add');
+    Route::get('/checkout/success', [FrontendController::class, 'success'])->name('checkout-success');
+});
 // dashboard route
 Route::middleware(['auth:sanctum', 'verified'])
     ->name('dashboard.')
@@ -39,6 +44,9 @@ Route::middleware(['auth:sanctum', 'verified'])
             ]);
             Route::resource('transaction', TransactionController::class)->only([
                 'index', 'show', 'edit', 'update'
+            ]);
+            Route::resource('user', UserController::class)->only([
+                'index', 'edit', 'update', 'destroy'
             ]);
         });
     });
