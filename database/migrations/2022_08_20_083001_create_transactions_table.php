@@ -20,7 +20,7 @@ class CreateTransactionsTable extends Migration
             $table->string('email')->nullable();
             $table->longText('address')->nullable();
             $table->string('phone')->nullable();
-            $table->string('courrier')->nullable();
+            $table->string('courier')->nullable();
             $table->string('payment')->default('MIDTRANS');
             $table->string('payment_url')->nullable();
             $table->bigInteger('total_price')->default(0);
