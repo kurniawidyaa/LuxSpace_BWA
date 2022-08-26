@@ -2,10 +2,16 @@
 
 namespace App\Http\Controllers;
 
+use Exception;
+use Midtrans\Snap;
 use App\Models\Cart;
+use Midtrans\Config;
 use App\Models\Product;
+use App\Models\Transaction;
 use Illuminate\Http\Request;
+use App\Models\TransactionItem;
 use Illuminate\Support\Facades\Auth;
+use App\Http\Requests\CheckoutRequest;
 
 class FrontendController extends Controller
 {
@@ -32,9 +38,95 @@ class FrontendController extends Controller
         return redirect('cart');
     }
 
+    public function cartDelete(Request $request, $id)
+    {
+        $cart = Cart::findOrFail($id);
+        $cart->delete();
+
+        return redirect('cart');
+    }
+
     public function cart(Request $request)
     {
-        return view('pages.frontend.cart');
+        $carts = Cart::with(['product.galleries'])->where('users_id', Auth::user()->id)->get();
+        return view('pages.frontend.cart', compact('carts'));
+    }
+
+    public function checkout(CheckoutRequest $request)
+    {
+        try {
+            $data = $request->all();
+
+            // Get carts data
+            $carts = Cart::with(['product'])->where('users_id', Auth::user()->id)->get();
+
+            // Add to transaction data
+            $data['users_id'] = Auth::user()->id;
+            // menggambil harga dari harga product
+            $data['total_price'] = $carts->sum('product.price');
+
+            // Create transaction
+            $transaction = Transaction::create($data);
+
+            // Create transaction item
+            foreach ($carts as $cart) {
+                $items[] = TransactionItem::create([
+                    'transactions_id' => $transaction->id,
+                    'users_id' => $cart->users_id,
+                    'products_id' => $cart->products_id
+                ]);
+            }
+
+            // Delete cart after transaction
+            Cart::where('users_id', Auth::user()->id)->delete();
+
+            // Configuration
+            Config::$serverKey = config('services.midtrans.serverKey');
+            Config::$isProduction = config('services.midtrans.isProduction'); //sudah masuk ke production atau sandbox
+            Config::$isSanitized = config('services.midtrans.isSanitized'); //transaksi sudah dibersihkan atau belum
+            Config::$is3ds = config('services.midtrans.is3ds'); //verifikasi kartu kredit/debit online
+
+            // Setup variable midtrans
+            $midtrans = [
+                'transaction_details' => [
+                    'order_id'      => 'LUX-' . $transaction->id,
+                    'gross_amount'  => (int)$transaction->total_price, //mengkonversi harga kedalam bentuk integer
+                ],
+                'customer_details' => [
+                    'first_name'    => $transaction->name,
+                    'email'         => $transaction->email,
+                    'phone'         => $transaction->phone,
+                ],
+                'enabled_payments' => ['gopay', 'bank_transfer'],
+                'vtweb' => []
+            ];
+
+            // Payment process
+            try {
+                // Get Snap Payment Page URL
+                $paymentUrl = Snap::createTransaction($midtrans)->redirect_url;
+                // mengembalikan data/input data url ke database
+                $transaction['payment_url'] = $paymentUrl;
+                $transaction->save();
+                // Redirect to Snap Payment Page
+                return redirect($paymentUrl);
+            } catch (Exception $e) {
+                echo $e->getMessage();
+            }
+        } catch (Exception $e) {
+            $message = $e->getMessage();
+            var_dump('Exception Message: ' . $message);
+
+            $code = $e->getCode();
+            var_dump('Exception Code: ' . $code);
+
+            $string = $e->__toString();
+            var_dump('Exception String: ' . $string);
+
+            exit;
+        }
+
+        // return response()->json($paymentUrl);
     }
 
     public function success(Request $request)

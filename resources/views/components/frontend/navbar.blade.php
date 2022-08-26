@@ -46,12 +46,12 @@
                 @guest
                 <li class="mx-3 py-6 md:py-0">
                   <a href="{{ route('login') }}" class="text-black {{ Route::current()->getName() == 'md:text-white' ? 'md:text-black' : '' }}hover:underline"
-                    >Login |</a
+                    >Login</a
                   >
                 </li>
                 <li class="mx-3 py-6 md:py-0">
                   <a href="{{ route('register') }}" class="text-black {{ Route::current()->getName() == 'md:text-white' ? 'md:text-black' : '' }}hover:underline"
-                    > Register</a
+                    >Register</a
                   >
                 </li>
                 @endguest
