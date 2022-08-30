@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\FrontendController;
+use App\Http\Controllers\MyTransactionController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ProductGalleryController;
 use App\Http\Controllers\TransactionController;
@@ -31,24 +32,22 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
     Route::get('/checkout/success', [FrontendController::class, 'success'])->name('checkout-success');
 });
 // dashboard route
-Route::middleware(['auth:sanctum', 'verified'])
-    ->name('dashboard.')
-    ->prefix('dashboard')
-    ->group(function () {
-        Route::get('/', [DashboardController::class, 'index'])->name('index');
+Route::middleware(['auth:sanctum', 'verified'])->name('dashboard.')->prefix('dashboard')->group(function () {
+    Route::get('/', [DashboardController::class, 'index'])->name('index');
+    Route::resource('my-transaction', MyTransactionController::class)->only(['index', 'show']);
 
-        Route::middleware(['admin'])->group(function () {
-            // Product
-            Route::resource('product', ProductController::class);
-            // shallow() -> sebagai slug dalam route resource
-            Route::resource('product.gallery', ProductGalleryController::class)->shallow()->only([
-                'index', 'create', 'store', 'destroy'
-            ]);
-            Route::resource('transaction', TransactionController::class)->only([
-                'index', 'show', 'edit', 'update'
-            ]);
-            Route::resource('user', UserController::class)->only([
-                'index', 'edit', 'update', 'destroy'
-            ]);
-        });
+    Route::middleware(['admin'])->group(function () {
+        // Product
+        Route::resource('product', ProductController::class);
+        // shallow() -> sebagai slug dalam route resource
+        Route::resource('product.gallery', ProductGalleryController::class)->shallow()->only([
+            'index', 'create', 'store', 'destroy'
+        ]);
+        Route::resource('transaction', TransactionController::class)->only([
+            'index', 'show', 'edit', 'update'
+        ]);
+        Route::resource('user', UserController::class)->only([
+            'index', 'edit', 'update', 'destroy'
+        ]);
     });
+});
