@@ -2,6 +2,8 @@
 
 namespace Database\Seeders;
 
+use Carbon\Carbon;
+use App\Models\User;
 use App\Models\Product;
 use Illuminate\Database\Seeder;
 
@@ -14,7 +16,13 @@ class DatabaseSeeder extends Seeder
      */
     public function run()
     {
-        // \App\Models\User::factory(10)->create();
-        Product::factory(10)->create();
+        User::insert([
+            'name' => 'admin',
+            'email' => 'admin@admin.com',
+            'roles' => 'ADMIN',
+            'email_verified_at' => Carbon::now(),
+            'password' => bcrypt('password')
+        ]);
+        User::factory(10)->create();
     }
 }

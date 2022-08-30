@@ -171,8 +171,8 @@
                           <div class="px-2 w-6/12 h-24 mb-4">
                             <button
                               type="button"
-                              data-value="fedex"
-                              data-name="courier"
+                              value="fedex"
+                              name="courier"
                               class="border border-gray-200 focus:border-red-200 flex items-center justify-center rounded-xl bg-white w-full h-full focus:outline-none"
                             >
                               <img
@@ -185,8 +185,8 @@
                           <div class="px-2 w-6/12 h-24 mb-4">
                             <button
                               type="button"
-                              data-value="dhl"
-                              data-name="courier"
+                              value="dhl"
+                              name="courier"
                               class="border border-gray-200 focus:border-red-200 flex items-center justify-center rounded-xl bg-white w-full h-full focus:outline-none"
                             >
                               <img
